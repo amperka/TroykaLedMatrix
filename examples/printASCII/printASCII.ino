@@ -13,14 +13,14 @@ void setup()
   // очищаем матрицу
   matrix.clear();
   // устанавливаем шрифт
-  matrix.setFont((const uint8_t *)font8x8_basic, 128, 8);
+  matrix.selectFont(FONT_8X8_BASIC);
 }
 
 void loop()
 {
   // с помощью цикла по очереди выводим символы из таблицы ASCII
   for (int i = 32; i < 128; i++) {
-    matrix.drawCharacter(i); 
+    matrix.drawSymbol(i); 
     delay(500);
   }
 }

@@ -25,7 +25,7 @@ void setup()
   // очищаем матрицу
   matrix.clear();
   // отображаем на матрице сердце
-  matrix.drawBitmap(heart, 8);
+  matrix.drawBitmap(heart);
 }
 
 void loop()

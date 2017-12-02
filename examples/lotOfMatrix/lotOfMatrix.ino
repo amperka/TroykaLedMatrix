@@ -22,13 +22,13 @@ void setup()
   matrix2.clear();
   matrix3.clear();
   // устанавливаем шрифт
-  matrix1.setFont((const uint8_t *)font8x8_basic, 128, 8);
-  matrix2.setFont((const uint8_t *)font8x8_basic, 128, 8);
-  matrix3.setFont((const uint8_t *)font8x8_basic, 128, 8);
+  matrix1.selectFont(FONT_8X8_BASIC);
+  matrix2.selectFont(FONT_8X8_BASIC);
+  matrix3.selectFont(FONT_8X8_BASIC);
   // выводим на каждую матрицу по символу из строки «C++»
-  matrix1.drawCharacter('C');
-  matrix2.drawCharacter('+');
-  matrix3.drawCharacter('+');
+  matrix1.drawSymbol('C');
+  matrix2.drawSymbol('+');
+  matrix3.drawSymbol('+');
 }
 
 void loop()
