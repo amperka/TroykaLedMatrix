@@ -184,6 +184,22 @@ void TroykaLedMatrix::drawBitmap(const uint8_t* data, bool const reverse, const 
     _updateDisplay();
 }
 
+void TroykaLedMatrix::marquee(const uint8_t data[][8], const int len, const int sh, bool const reverse) {
+    byte frame = sh / 8;
+    byte col = sh % 8;
+    for (uint8_t i = 0; i < 8; i++) {
+        if (reverse) {
+			byte line = data[frame % len][i] << col;
+			line |= data[(frame+1) % len][i] >> (8 - col);
+            _data[i] = pgm_read_byte(&RER_BIT_MAP[line]);
+        } else {
+			_data[i] = data[frame % len][i] << col;
+            _data[i] |= data[(frame+1) % len][i] >> (8 - col);
+        }
+    }
+    _updateDisplay();
+}
+
 void TroykaLedMatrix::drawBitmapF(const uint8_t* PROGMEM data, const bool reverse, const uint8_t countRaws = 8) {
     uint8_t n = min(countRaws, MATRIX_MAX_ROWS);
     for (uint8_t i = 0; i < n; i++) {
@@ -191,6 +207,11 @@ void TroykaLedMatrix::drawBitmapF(const uint8_t* PROGMEM data, const bool revers
         //_data[i] = pgm_read_byte(data + i);
     }
     _updateDisplay();
+}
+
+byte TroykaLedMatrix::map(long input, long in_min, long in_max) {
+	byte output = (input - in_min) * 8 / (in_max - in_min);
+	return 0b11111111 >> output;
 }
 
 void TroykaLedMatrix::_updateDisplay() {

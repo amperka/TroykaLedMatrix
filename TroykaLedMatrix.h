@@ -116,7 +116,9 @@ public:
     void drawPixel(const uint8_t x, const uint8_t y);
     void drawSymbol(const uint8_t c);
     void drawBitmap(const uint8_t* data, const bool reverse = true, const uint8_t countRaws = 8);
+	void marquee(const uint8_t data[][8], const int len, const int sh, const bool reverse = true);
     void drawBitmapF(const uint8_t* PROGMEM data, const bool reverse = true, const uint8_t countRaws = 8);
+	byte map(long input, long in_min, long in_max);
 
 private:
     void _updateDisplay();
