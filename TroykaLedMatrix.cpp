@@ -14,6 +14,7 @@ void TroykaLedMatrix::begin() {
     _audioEqualizer = false;
     _audioInputGain = AUDIO_GAIN_0DB;
     _currentLimit = ROW_CURRENT_30MA;
+	setCurrentLimit(ROW_CURRENT_05MA);
     setMatrixSize(MATRIX_SIZE_8X8);
     Wire.begin();
     _writeReg(REG_ADDR_CONFIGURATION, _makeConfigReg());
