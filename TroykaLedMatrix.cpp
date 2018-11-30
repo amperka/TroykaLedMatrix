@@ -16,19 +16,19 @@ void TroykaLedMatrix::_init() {
     _currentLimit = ROW_CURRENT_30MA;
     setCurrentLimit(ROW_CURRENT_05MA);
     setMatrixSize(MATRIX_SIZE_8X8);
-//    _wire->begin(); //We have to do it in setup
+//    _wire->begin(); //We have to do this in setup
     _writeReg(REG_ADDR_CONFIGURATION, _makeConfigReg());
     _writeReg(REG_ADDR_LIGHTING_EFFECT, _makeEffectReg());
     disableEqualizer();
 }
 
-void TroykaLedMatrix::begin(TwoWire* wire) {
-    _wire = wire;
+void TroykaLedMatrix::begin(TwoWire& wire) {
+    _wire = &wire;
     _init();
 }
 
 void TroykaLedMatrix::begin() {
-    _wire = &Wire;
+    begin(Wire);
     _init();
 }
 

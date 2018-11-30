@@ -100,7 +100,7 @@ public:
     TroykaLedMatrix();
     TroykaLedMatrix(const uint8_t addr);
     void begin();
-    void begin(TwoWire* wire);
+    void begin(TwoWire& wire);
     void enableDisplay();
     void disableDisplay();
     void enableAudioInput();
