@@ -100,6 +100,7 @@ public:
     TroykaLedMatrix();
     TroykaLedMatrix(const uint8_t addr);
     void begin();
+    void begin(TwoWire* wire);
     void enableDisplay();
     void disableDisplay();
     void enableAudioInput();
@@ -121,6 +122,7 @@ public:
     byte map(long input, long in_min, long in_max);
 
 private:
+    void _init();
     void _updateDisplay();
     uint8_t _getRow(const uint8_t y);
     uint8_t _readReg(const uint8_t addr);
@@ -140,6 +142,7 @@ private:
     uint8_t _fontSize;
     uint8_t _fontHeight;
     uint8_t _data[MATRIX_MAX_ROWS];
+    TwoWire* _wire;
 };
 
 #endif //TROYKA_LED_MATRIX

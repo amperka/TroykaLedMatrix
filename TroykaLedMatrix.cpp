@@ -8,7 +8,7 @@ TroykaLedMatrix::TroykaLedMatrix(const uint8_t addr) {
     _addr = I2C_ADDR_BASE | (addr & I2C_ADDR_MASK);
 }
 
-void TroykaLedMatrix::begin() {
+void TroykaLedMatrix::_init() {
     _shutDown = false;
     _audioInput = false;
     _audioEqualizer = false;
@@ -16,10 +16,20 @@ void TroykaLedMatrix::begin() {
     _currentLimit = ROW_CURRENT_30MA;
     setCurrentLimit(ROW_CURRENT_05MA);
     setMatrixSize(MATRIX_SIZE_8X8);
-    Wire.begin();
+//    _wire->begin(); //We have to do it in setup
     _writeReg(REG_ADDR_CONFIGURATION, _makeConfigReg());
     _writeReg(REG_ADDR_LIGHTING_EFFECT, _makeEffectReg());
     disableEqualizer();
+}
+
+void TroykaLedMatrix::begin(TwoWire* wire) {
+    _wire = wire;
+    _init();
+}
+
+void TroykaLedMatrix::begin() {
+    _wire = &Wire;
+    _init();
 }
 
 void TroykaLedMatrix::enableDisplay() {
@@ -232,20 +242,20 @@ uint8_t TroykaLedMatrix::_getRow(const uint8_t y) {
 }
 
 uint8_t TroykaLedMatrix::_readReg(const uint8_t addr) {
-    Wire.beginTransmission(_addr);
-    Wire.write(addr);
-    Wire.endTransmission();
-    Wire.requestFrom(_addr, 1);
-    while (!Wire.available());
-    uint8_t data = Wire.read();
+    _wire->beginTransmission(_addr);
+    _wire->write(addr);
+    _wire->endTransmission();
+    _wire->requestFrom(_addr, 1);
+    while (!_wire->available());
+    uint8_t data = _wire->read();
     return data; 
 }
 
 void TroykaLedMatrix::_writeReg(const uint8_t addr, const uint8_t data) {
-    Wire.beginTransmission(_addr);
-    Wire.write(addr);
-    Wire.write(data);
-    Wire.endTransmission();
+    _wire->beginTransmission(_addr);
+    _wire->write(addr);
+    _wire->write(data);
+    _wire->endTransmission();
 }
 
 uint8_t TroykaLedMatrix::_makeConfigReg() {
