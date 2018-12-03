@@ -112,13 +112,13 @@ public:
     void setMatrixSize(const uint8_t value);
     void clear();
     void selectFont(const uint8_t fontID);
-    void setFont(const uint8_t* PROGMEM font, const uint8_t countChars = 1, const uint8_t countRaws = 8);
+    void setFont(const uint8_t* font, const uint8_t countChars = 1, const uint8_t countRaws = 8);
     void clearPixel(const uint8_t x, const uint8_t y);
     void drawPixel(const uint8_t x, const uint8_t y);
     void drawSymbol(const uint8_t c);
     void drawBitmap(const uint8_t* data, const bool reverse = true, const uint8_t countRaws = 8);
     void marquee(const uint8_t data[][8], const int len, const int sh, const bool reverse = true);
-    void drawBitmapF(const uint8_t* PROGMEM data, const bool reverse = true, const uint8_t countRaws = 8);
+    void drawBitmapF(const uint8_t* data, const bool reverse = true, const uint8_t countRaws = 8);
     byte map(long input, long in_min, long in_max);
 
 private:

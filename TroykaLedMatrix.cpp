@@ -13,7 +13,7 @@ void TroykaLedMatrix::_init() {
     _audioInput = false;
     _audioEqualizer = false;
     _audioInputGain = AUDIO_GAIN_0DB;
-    _currentLimit = ROW_CURRENT_30MA;
+    //_currentLimit = ROW_CURRENT_30MA;
     setCurrentLimit(ROW_CURRENT_05MA);
     setMatrixSize(MATRIX_SIZE_8X8);
 //    _wire->begin(); //We have to do this in setup
@@ -29,7 +29,6 @@ void TroykaLedMatrix::begin(TwoWire& wire) {
 
 void TroykaLedMatrix::begin() {
     begin(Wire);
-    _init();
 }
 
 void TroykaLedMatrix::enableDisplay() {
@@ -167,9 +166,9 @@ void TroykaLedMatrix::selectFont(const uint8_t fontID) {
         }
     }
 }
-
-void TroykaLedMatrix::setFont(const uint8_t* PROGMEM font, const uint8_t countChars = 1, const uint8_t countRaws = 8) {
-    _font = font;
+void TroykaLedMatrix::setFont(const uint8_t* font, const uint8_t countChars, const uint8_t countRaws) {
+//void TroykaLedMatrix::setFont(const uint8_t* PROGMEM font, const uint8_t countChars = 1, const uint8_t countRaws = 8) {
+    _font = (uint8_t*)font;
     _fontSize = countChars;
     _fontHeight = countRaws;
 }
@@ -183,8 +182,9 @@ void TroykaLedMatrix::drawSymbol(const uint8_t c) {
     _updateDisplay();
 }
 
-void TroykaLedMatrix::drawBitmap(const uint8_t* data, bool const reverse, const uint8_t countRaws = 8) {
-    uint8_t n = min(countRaws, MATRIX_MAX_ROWS);
+//void TroykaLedMatrix::drawBitmap(const uint8_t* data, bool const reverse, const uint8_t countRaws = 8) {
+void TroykaLedMatrix::drawBitmap(const uint8_t* data, bool const reverse, const uint8_t countRaws) {
+    uint8_t n = min((uint8_t)countRaws, (uint8_t)MATRIX_MAX_ROWS);
     for (uint8_t i = 0; i < n; i++) {
         if (reverse) {
             _data[i] = pgm_read_byte(&RER_BIT_MAP[data[i]]);
@@ -211,8 +211,10 @@ void TroykaLedMatrix::marquee(const uint8_t data[][8], const int len, const int 
     _updateDisplay();
 }
 
-void TroykaLedMatrix::drawBitmapF(const uint8_t* PROGMEM data, const bool reverse, const uint8_t countRaws = 8) {
-    uint8_t n = min(countRaws, MATRIX_MAX_ROWS);
+//void TroykaLedMatrix::drawBitmapF(const uint8_t* PROGMEM data, const bool reverse, const uint8_t countRaws = 8) {
+void TroykaLedMatrix::drawBitmapF(const uint8_t* data, const bool reverse, const uint8_t countRaws) {
+
+    uint8_t n = min((uint8_t)countRaws, (uint8_t)MATRIX_MAX_ROWS);
     for (uint8_t i = 0; i < n; i++) {
         _data[i] = pgm_read_byte(&data[i]);
         //_data[i] = pgm_read_byte(data + i);
@@ -226,7 +228,7 @@ byte TroykaLedMatrix::map(long input, long in_min, long in_max) {
 }
 
 void TroykaLedMatrix::_updateDisplay() {
-    uint8_t w = _width;
+    //uint8_t w = _width;
     uint8_t h = _height;
     for (uint8_t i = 0; i < h; i++) {
         uint8_t data = _getRow(i);

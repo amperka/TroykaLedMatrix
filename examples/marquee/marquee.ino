@@ -17,7 +17,12 @@ const int IMAGES_LEN = sizeof(IMAGES) / 8;
 byte shift = 0;
  
 void setup() {
+  // Инициализируем I2C
+  Wire.begin();
+  // начало работы с матрицей
   matrix.begin();
+  // для нестандартного Wire
+  // matrix.begin(Wire1);
 }
  
 void loop() {

@@ -20,6 +20,7 @@ const uint8_t heart[] {
 
 void setup()
 {
+  Wire.begin();
   // начало работы с матрицей
   matrix.begin();
   // очищаем матрицу
