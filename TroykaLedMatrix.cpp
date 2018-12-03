@@ -13,10 +13,8 @@ void TroykaLedMatrix::_init() {
     _audioInput = false;
     _audioEqualizer = false;
     _audioInputGain = AUDIO_GAIN_0DB;
-    //_currentLimit = ROW_CURRENT_30MA;
     setCurrentLimit(ROW_CURRENT_05MA);
     setMatrixSize(MATRIX_SIZE_8X8);
-//    _wire->begin(); //We have to do this in setup
     _writeReg(REG_ADDR_CONFIGURATION, _makeConfigReg());
     _writeReg(REG_ADDR_LIGHTING_EFFECT, _makeEffectReg());
     disableEqualizer();
@@ -167,8 +165,7 @@ void TroykaLedMatrix::selectFont(const uint8_t fontID) {
     }
 }
 void TroykaLedMatrix::setFont(const uint8_t* font, const uint8_t countChars, const uint8_t countRaws) {
-//void TroykaLedMatrix::setFont(const uint8_t* PROGMEM font, const uint8_t countChars = 1, const uint8_t countRaws = 8) {
-    _font = (uint8_t*)font;
+    _font = font;
     _fontSize = countChars;
     _fontHeight = countRaws;
 }
@@ -182,7 +179,6 @@ void TroykaLedMatrix::drawSymbol(const uint8_t c) {
     _updateDisplay();
 }
 
-//void TroykaLedMatrix::drawBitmap(const uint8_t* data, bool const reverse, const uint8_t countRaws = 8) {
 void TroykaLedMatrix::drawBitmap(const uint8_t* data, bool const reverse, const uint8_t countRaws) {
     uint8_t n = min((uint8_t)countRaws, (uint8_t)MATRIX_MAX_ROWS);
     for (uint8_t i = 0; i < n; i++) {
@@ -211,13 +207,11 @@ void TroykaLedMatrix::marquee(const uint8_t data[][8], const int len, const int 
     _updateDisplay();
 }
 
-//void TroykaLedMatrix::drawBitmapF(const uint8_t* PROGMEM data, const bool reverse, const uint8_t countRaws = 8) {
-void TroykaLedMatrix::drawBitmapF(const uint8_t* data, const bool reverse, const uint8_t countRaws) {
+void TroykaLedMatrix::drawBitmapF(const uint8_t* data, const uint8_t countRaws) {
 
     uint8_t n = min((uint8_t)countRaws, (uint8_t)MATRIX_MAX_ROWS);
     for (uint8_t i = 0; i < n; i++) {
         _data[i] = pgm_read_byte(&data[i]);
-        //_data[i] = pgm_read_byte(data + i);
     }
     _updateDisplay();
 }
@@ -228,13 +222,10 @@ byte TroykaLedMatrix::map(long input, long in_min, long in_max) {
 }
 
 void TroykaLedMatrix::_updateDisplay() {
-    //uint8_t w = _width;
     uint8_t h = _height;
     for (uint8_t i = 0; i < h; i++) {
         uint8_t data = _getRow(i);
         _writeReg(REG_ADDR_COLUMN_DATA + i, data);
-        //_writeReg(REG_ADDR_COLUMN_DATA + i, pgm_read_byte(RER_BIT_MAP + data));
-        //_writeReg(REG_ADDR_COLUMN_DATA + i, pgm_read_byte(&RER_BIT_MAP[data]);
     }
     _writeReg(REG_ADDR_UPDATE_COLUMN, 0xff);
 }
@@ -247,7 +238,7 @@ uint8_t TroykaLedMatrix::_readReg(const uint8_t addr) {
     _wire->beginTransmission(_addr);
     _wire->write(addr);
     _wire->endTransmission();
-    _wire->requestFrom(_addr, 1);
+    _wire->requestFrom(_addr, (uint8_t)1);
     while (!_wire->available());
     uint8_t data = _wire->read();
     return data; 

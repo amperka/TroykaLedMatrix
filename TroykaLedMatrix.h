@@ -118,7 +118,7 @@ public:
     void drawSymbol(const uint8_t c);
     void drawBitmap(const uint8_t* data, const bool reverse = true, const uint8_t countRaws = 8);
     void marquee(const uint8_t data[][8], const int len, const int sh, const bool reverse = true);
-    void drawBitmapF(const uint8_t* data, const bool reverse = true, const uint8_t countRaws = 8);
+    void drawBitmapF(const uint8_t* data, const uint8_t countRaws = 8);
     byte map(long input, long in_min, long in_max);
 
 private:
@@ -138,7 +138,7 @@ private:
     uint8_t _audioInputGain;
     uint8_t _currentLimit;
     bool _audioEqualizer;
-    uint8_t* _font;
+    const uint8_t* _font;
     uint8_t _fontSize;
     uint8_t _fontHeight;
     uint8_t _data[MATRIX_MAX_ROWS];
