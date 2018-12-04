@@ -13,6 +13,9 @@ TroykaLedMatrix matrix3(0b01100010);
 
 void setup()
 {
+  // Инициализируем I2C
+  Wire.begin();
+  
   // начало работы с матрицами
   matrix1.begin();
   matrix2.begin();

@@ -8,18 +8,26 @@ TroykaLedMatrix::TroykaLedMatrix(const uint8_t addr) {
     _addr = I2C_ADDR_BASE | (addr & I2C_ADDR_MASK);
 }
 
-void TroykaLedMatrix::begin() {
+void TroykaLedMatrix::_init() {
     _shutDown = false;
     _audioInput = false;
     _audioEqualizer = false;
     _audioInputGain = AUDIO_GAIN_0DB;
-    _currentLimit = ROW_CURRENT_30MA;
     setCurrentLimit(ROW_CURRENT_05MA);
     setMatrixSize(MATRIX_SIZE_8X8);
-    Wire.begin();
     _writeReg(REG_ADDR_CONFIGURATION, _makeConfigReg());
     _writeReg(REG_ADDR_LIGHTING_EFFECT, _makeEffectReg());
     disableEqualizer();
+    setRotation(ROTATION_0);
+}
+
+void TroykaLedMatrix::begin(TwoWire& wire) {
+    _wire = &wire;
+    _init();
+}
+
+void TroykaLedMatrix::begin() {
+    begin(Wire);
 }
 
 void TroykaLedMatrix::enableDisplay() {
@@ -158,7 +166,7 @@ void TroykaLedMatrix::selectFont(const uint8_t fontID) {
     }
 }
 
-void TroykaLedMatrix::setFont(const uint8_t* PROGMEM font, const uint8_t countChars = 1, const uint8_t countRaws = 8) {
+void TroykaLedMatrix::setFont(const uint8_t* font, const uint8_t countChars, const uint8_t countRaws) {
     _font = font;
     _fontSize = countChars;
     _fontHeight = countRaws;
@@ -170,11 +178,10 @@ void TroykaLedMatrix::drawSymbol(const uint8_t c) {
             drawBitmapF(&_font[c * _fontHeight], _fontHeight);
         }
     }
-    _updateDisplay();
 }
 
-void TroykaLedMatrix::drawBitmap(const uint8_t* data, bool const reverse, const uint8_t countRaws = 8) {
-    uint8_t n = min(countRaws, MATRIX_MAX_ROWS);
+void TroykaLedMatrix::drawBitmap(const uint8_t* data, bool const reverse, const uint8_t countRaws) {
+    uint8_t n = min((uint8_t)countRaws, (uint8_t)MATRIX_MAX_ROWS);
     for (uint8_t i = 0; i < n; i++) {
         if (reverse) {
             _data[i] = pgm_read_byte(&RER_BIT_MAP[data[i]]);
@@ -190,22 +197,22 @@ void TroykaLedMatrix::marquee(const uint8_t data[][8], const int len, const int 
     byte col = sh % 8;
     for (uint8_t i = 0; i < 8; i++) {
         if (reverse) {
-			byte line = data[frame % len][i] << col;
-			line |= data[(frame+1) % len][i] >> (8 - col);
-            _data[i] = pgm_read_byte(&RER_BIT_MAP[line]);
-        } else {
-			_data[i] = data[frame % len][i] << col;
-            _data[i] |= data[(frame+1) % len][i] >> (8 - col);
-        }
-    }
-    _updateDisplay();
+           byte line = data[frame % len][i] << col;
+           line |= data[(frame+1) % len][i] >> (8 - col);
+           _data[i] = pgm_read_byte(&RER_BIT_MAP[line]);
+       } else {
+           _data[i] = data[frame % len][i] << col;
+           _data[i] |= data[(frame+1) % len][i] >> (8 - col);
+       }
+   }
+   _updateDisplay();
 }
 
-void TroykaLedMatrix::drawBitmapF(const uint8_t* PROGMEM data, const bool reverse, const uint8_t countRaws = 8) {
-    uint8_t n = min(countRaws, MATRIX_MAX_ROWS);
+void TroykaLedMatrix::drawBitmapF(const uint8_t* data, const uint8_t countRaws) {
+
+    uint8_t n = min((uint8_t)countRaws, (uint8_t)MATRIX_MAX_ROWS);
     for (uint8_t i = 0; i < n; i++) {
         _data[i] = pgm_read_byte(&data[i]);
-        //_data[i] = pgm_read_byte(data + i);
     }
     _updateDisplay();
 }
@@ -216,36 +223,64 @@ byte TroykaLedMatrix::map(long input, long in_min, long in_max) {
 }
 
 void TroykaLedMatrix::_updateDisplay() {
-    uint8_t w = _width;
     uint8_t h = _height;
     for (uint8_t i = 0; i < h; i++) {
         uint8_t data = _getRow(i);
         _writeReg(REG_ADDR_COLUMN_DATA + i, data);
-        //_writeReg(REG_ADDR_COLUMN_DATA + i, pgm_read_byte(RER_BIT_MAP + data));
-        //_writeReg(REG_ADDR_COLUMN_DATA + i, pgm_read_byte(&RER_BIT_MAP[data]);
     }
     _writeReg(REG_ADDR_UPDATE_COLUMN, 0xff);
 }
 
 uint8_t TroykaLedMatrix::_getRow(const uint8_t y) {
-    return _data[y % MATRIX_MAX_ROWS];
+    uint8_t result = 0;
+    switch (_rotation) {
+        default:
+        case ROTATION_0: {
+            result = _data[y % _height];
+            break;
+        }
+        case ROTATION_90: {
+            uint8_t mask = 1 << y;
+            for (uint8_t i=0; i < 8; ++i) {
+                result |=(_data[i] & mask)?(0x80>>i):0;
+            }
+            break;
+        }
+        case ROTATION_180: {
+            uint8_t row = _data[_height - 1 - (y % _height)];
+            for (uint8_t i=0; i < _height; ++i) {
+                result >>= 1;
+                result |= row & 0x80;
+                row <<= 1;
+            }
+            break;
+        }
+        case ROTATION_270: {
+            uint8_t mask = 0x80>>y;
+            for (uint8_t i=0; i < 8; ++i) {
+                result |=(_data[i] & mask)?(1<<i):0;
+            }
+            break;
+        }
+    }
+    return result;
 }
 
 uint8_t TroykaLedMatrix::_readReg(const uint8_t addr) {
-    Wire.beginTransmission(_addr);
-    Wire.write(addr);
-    Wire.endTransmission();
-    Wire.requestFrom(_addr, 1);
-    while (!Wire.available());
-    uint8_t data = Wire.read();
+    _wire->beginTransmission(_addr);
+    _wire->write(addr);
+    _wire->endTransmission();
+    _wire->requestFrom(_addr, (uint8_t)1);
+    while (!_wire->available());
+    uint8_t data = _wire->read();
     return data; 
 }
 
 void TroykaLedMatrix::_writeReg(const uint8_t addr, const uint8_t data) {
-    Wire.beginTransmission(_addr);
-    Wire.write(addr);
-    Wire.write(data);
-    Wire.endTransmission();
+    _wire->beginTransmission(_addr);
+    _wire->write(addr);
+    _wire->write(data);
+    _wire->endTransmission();
 }
 
 uint8_t TroykaLedMatrix::_makeConfigReg() {
@@ -262,6 +297,35 @@ uint8_t TroykaLedMatrix::_makeConfigReg() {
 
 uint8_t TroykaLedMatrix::_makeEffectReg() {
     uint8_t data = (_audioInputGain << BIT_EFFECT_AUDIO_GAIN) |
-                   (_currentLimit << BIT_EFFECT_ROW_CURRENT);
+    (_currentLimit << BIT_EFFECT_ROW_CURRENT);
     return data;
+}
+
+void TroykaLedMatrix::marqueeText(char text[], uint8_t len, uint16_t sh) {
+    uint8_t frame = sh / 8;
+    uint8_t col = sh % 8;
+    uint8_t firstSymCol = 8 - col;
+    if (_font) {
+        if (frame < len) {
+            if (text[frame] < _fontSize) {
+                for (uint8_t i = 0; i < 8; i++) {
+                    uint16_t line = text[frame] * 8 + i;
+                    _data[i] = pgm_read_byte(&_font[line]) >> col;
+                }                 
+            }
+        }
+        if (frame + 1 < len) {
+            if (text[frame+1] < _fontSize) {
+                for (uint8_t i = 0; i < 8; i++) {
+                    uint16_t line = text[frame + 1] * 8 + i;
+                    _data[i] |= pgm_read_byte(&_font[line]) << firstSymCol;
+                }                 
+            }
+        }
+    }
+    _updateDisplay();
+}
+
+void TroykaLedMatrix::setRotation(const uint8_t value) {
+    _rotation = value;
 }

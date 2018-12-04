@@ -8,8 +8,13 @@ TroykaLedMatrix matrix;
 
 void setup()
 {
+  // Инициализируем I2C
+  Wire.begin();
   // начало работы с матрицей
   matrix.begin();
+  // для нестандартного Wire
+  // matrix.begin(Wire1);
+  
   // очищаем матрицу
   matrix.clear();
 }

@@ -1,7 +1,7 @@
 #include "TroykaLedMatrix.h"
  
 TroykaLedMatrix matrix;
- 
+// Скетч показывает, как вращать последовательность из 8x8 картинок
 const byte IMAGES[][8] = {
   {0x30, 0x78, 0xcc, 0xcc, 0xfc, 0xcc, 0xcc, 0x00},
   {0xc6, 0xee, 0xfe, 0xfe, 0xd6, 0xc6, 0xc6, 0x00},
@@ -17,7 +17,12 @@ const int IMAGES_LEN = sizeof(IMAGES) / 8;
 byte shift = 0;
  
 void setup() {
+  // Инициализируем I2C
+  Wire.begin();
+  // начало работы с матрицей
   matrix.begin();
+  // для нестандартного Wire
+  // matrix.begin(Wire1);
 }
  
 void loop() {
