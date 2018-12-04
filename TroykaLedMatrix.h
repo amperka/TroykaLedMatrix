@@ -77,6 +77,10 @@
 #define FONT_8X8_HIRAGANA           7
 #define FONT_8X8_SGA                8
 
+#define ROTATION_0                  0
+#define ROTATION_90                 1
+#define ROTATION_180                2
+#define ROTATION_270                3
 
 const uint8_t PROGMEM RER_BIT_MAP[256] = {  0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0, 0x10, 0x90, 0x50, 0xD0, 0x30, 0xB0, 0x70, 0xF0,
                                             0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8, 0x18, 0x98, 0x58, 0xD8, 0x38, 0xB8, 0x78, 0xF8, 
@@ -122,6 +126,7 @@ public:
     void drawBitmapF(const uint8_t* data, const uint8_t countRaws = 8);
     byte map(long input, long in_min, long in_max);
     void marqueeText(char text[], uint8_t len, uint16_t sh);
+    void setRotation(const uint8_t value);
 
 private:
     void _init();
@@ -145,6 +150,7 @@ private:
     uint8_t _fontHeight;
     uint8_t _data[MATRIX_MAX_ROWS];
     TwoWire* _wire;
+    uint8_t _rotation;
 };
 
 #endif //TROYKA_LED_MATRIX

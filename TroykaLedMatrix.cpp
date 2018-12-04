@@ -18,6 +18,7 @@ void TroykaLedMatrix::_init() {
     _writeReg(REG_ADDR_CONFIGURATION, _makeConfigReg());
     _writeReg(REG_ADDR_LIGHTING_EFFECT, _makeEffectReg());
     disableEqualizer();
+    setRotation(ROTATION_0);
 }
 
 void TroykaLedMatrix::begin(TwoWire& wire) {
@@ -231,7 +232,38 @@ void TroykaLedMatrix::_updateDisplay() {
 }
 
 uint8_t TroykaLedMatrix::_getRow(const uint8_t y) {
-    return _data[y % MATRIX_MAX_ROWS];
+    uint8_t result = 0;
+    switch (_rotation) {
+        default:
+        case ROTATION_0: {
+            result = _data[y % _height];
+            break;
+        }
+        case ROTATION_90: {
+            uint8_t mask = 1 << y;
+            for (uint8_t i=0; i < 8; ++i) {
+                result |=(_data[i] & mask)?(0x80>>i):0;
+            }
+            break;
+        }
+        case ROTATION_180: {
+            uint8_t row = _data[_height - 1 - (y % _height)];
+            for (uint8_t i=0; i < _height; ++i) {
+                result >>= 1;
+                result |= row & 0x80;
+                row <<= 1;
+            }
+            break;
+        }
+        case ROTATION_270: {
+            uint8_t mask = 0x80>>y;
+            for (uint8_t i=0; i < 8; ++i) {
+                result |=(_data[i] & mask)?(1<<i):0;
+            }
+            break;
+        }
+    }
+    return result;
 }
 
 uint8_t TroykaLedMatrix::_readReg(const uint8_t addr) {
@@ -292,4 +324,8 @@ void TroykaLedMatrix::marqueeText(char text[], uint8_t len, uint16_t sh) {
         }
     }
     _updateDisplay();
+}
+
+void TroykaLedMatrix::setRotation(const uint8_t value) {
+    _rotation = value;
 }

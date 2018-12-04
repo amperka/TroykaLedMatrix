@@ -1,11 +1,12 @@
 #include "TroykaLedMatrix.h"
  
 TroykaLedMatrix matrix;
- 
+// Массив с текстом для бегущей строки
 char Str[] = " Arduino";
-uint16_t  len = sizeof(Str);
- 
-byte shift = 0;
+// Нам понадобится длина масива
+byte  len = sizeof(Str);
+uint16_t shift = 0;
+
  
 void setup() {
   // Инициализируем I2C
@@ -14,10 +15,12 @@ void setup() {
   matrix.begin();
   // для нестандартного Wire
   // matrix.begin(Wire1);
-    matrix.selectFont(FONT_8X8_BASIC);
+  // выбираем шрифт
+  matrix.selectFont(FONT_8X8_BASIC);
 }
  
 void loop() {
+// Печатаем текст бегущей строкой
   delay(70);
   matrix.marqueeText(Str, len, shift++);
   if (shift == len * 8) {

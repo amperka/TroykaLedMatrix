@@ -25,10 +25,21 @@ void setup()
   matrix.begin();
   // очищаем матрицу
   matrix.clear();
-  // отображаем на матрице сердце и вращаем по часовой стрелке
-  matrix.drawBitmap(heart);
 }
 
 void loop()
 {
+  // отображаем на матрице сердце и вращаем по часовой стрелке
+  matrix.setRotation(ROTATION_0);
+  matrix.drawBitmap(heart);
+  delay(200);
+  matrix.setRotation(ROTATION_90);
+  matrix.drawBitmap(heart);
+  delay(200);
+  matrix.setRotation(ROTATION_180);
+  matrix.drawBitmap(heart);
+  delay(200);
+  matrix.setRotation(ROTATION_270);
+  matrix.drawBitmap(heart);
+  delay(200);
 }
