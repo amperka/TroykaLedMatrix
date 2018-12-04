@@ -164,6 +164,7 @@ void TroykaLedMatrix::selectFont(const uint8_t fontID) {
         }
     }
 }
+
 void TroykaLedMatrix::setFont(const uint8_t* font, const uint8_t countChars, const uint8_t countRaws) {
     _font = font;
     _fontSize = countChars;
@@ -176,7 +177,6 @@ void TroykaLedMatrix::drawSymbol(const uint8_t c) {
             drawBitmapF(&_font[c * _fontHeight], _fontHeight);
         }
     }
-    _updateDisplay();
 }
 
 void TroykaLedMatrix::drawBitmap(const uint8_t* data, bool const reverse, const uint8_t countRaws) {
@@ -196,15 +196,15 @@ void TroykaLedMatrix::marquee(const uint8_t data[][8], const int len, const int 
     byte col = sh % 8;
     for (uint8_t i = 0; i < 8; i++) {
         if (reverse) {
-			byte line = data[frame % len][i] << col;
-			line |= data[(frame+1) % len][i] >> (8 - col);
-            _data[i] = pgm_read_byte(&RER_BIT_MAP[line]);
-        } else {
-			_data[i] = data[frame % len][i] << col;
-            _data[i] |= data[(frame+1) % len][i] >> (8 - col);
-        }
-    }
-    _updateDisplay();
+           byte line = data[frame % len][i] << col;
+           line |= data[(frame+1) % len][i] >> (8 - col);
+           _data[i] = pgm_read_byte(&RER_BIT_MAP[line]);
+       } else {
+           _data[i] = data[frame % len][i] << col;
+           _data[i] |= data[(frame+1) % len][i] >> (8 - col);
+       }
+   }
+   _updateDisplay();
 }
 
 void TroykaLedMatrix::drawBitmapF(const uint8_t* data, const uint8_t countRaws) {
@@ -265,6 +265,31 @@ uint8_t TroykaLedMatrix::_makeConfigReg() {
 
 uint8_t TroykaLedMatrix::_makeEffectReg() {
     uint8_t data = (_audioInputGain << BIT_EFFECT_AUDIO_GAIN) |
-                   (_currentLimit << BIT_EFFECT_ROW_CURRENT);
+    (_currentLimit << BIT_EFFECT_ROW_CURRENT);
     return data;
+}
+
+void TroykaLedMatrix::marqueeText(char text[], uint8_t len, uint16_t sh) {
+    uint8_t frame = sh / 8;
+    uint8_t col = sh % 8;
+    uint8_t firstSymCol = 8 - col;
+    if (_font) {
+        if (frame < len) {
+            if (text[frame] < _fontSize) {
+                for (uint8_t i = 0; i < 8; i++) {
+                    uint16_t line = text[frame] * 8 + i;
+                    _data[i] = pgm_read_byte(&_font[line]) >> col;
+                }                 
+            }
+        }
+        if (frame + 1 < len) {
+            if (text[frame+1] < _fontSize) {
+                for (uint8_t i = 0; i < 8; i++) {
+                    uint16_t line = text[frame + 1] * 8 + i;
+                    _data[i] |= pgm_read_byte(&_font[line]) << firstSymCol;
+                }                 
+            }
+        }
+    }
+    _updateDisplay();
 }
