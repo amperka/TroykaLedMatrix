@@ -27,6 +27,7 @@ void TroykaLedMatrix::begin(TwoWire& wire) {
 }
 
 void TroykaLedMatrix::begin() {
+    Wire.begin();
     begin(Wire);
 }
 
