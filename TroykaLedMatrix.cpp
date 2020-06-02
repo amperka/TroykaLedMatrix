@@ -116,6 +116,7 @@ void TroykaLedMatrix::clearPixel(const uint8_t x, const uint8_t y) {
     uint8_t i = x % 8;
     uint8_t j = y % MATRIX_MAX_ROWS;
     _data[j] = _data[j] & ~_BV(i);
+    _updateDisplay();
 }
 
 void TroykaLedMatrix::drawPixel(const uint8_t x, const uint8_t y) {
