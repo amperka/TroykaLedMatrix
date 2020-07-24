@@ -273,7 +273,6 @@ uint8_t TroykaLedMatrix::_readReg(const uint8_t addr) {
     _wire->write(addr);
     _wire->endTransmission();
     _wire->requestFrom(_addr, (uint8_t)1);
-    while (!_wire->available());
     uint8_t data = _wire->read();
     return data; 
 }
