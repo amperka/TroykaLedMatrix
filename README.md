@@ -15,11 +15,11 @@
 Led Matrix 8×8 dots
 ===================
 
-This Arduino library relates to [Led Matrix 8×8](http://amperka.com/product/troyka-led-matrix).
+This Arduino library relates to [Led Matrix 8×8](http://amperka.com/products/troyka-led-matrix).
 It allows to show pixels, symbols, and pictures on the screen.
 
 Installation
 ============
 
-Open Arduino IDE. Choose "Scketch" → "Iport library" → "Add library…".
+Open Arduino IDE. Choose "Sketch" → "Import library" → "Add library…".
 In appeared window choose downloaded zip.
